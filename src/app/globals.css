@@ -1,26 +1,110 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-canvas: #eeeef0;
+  --color-surface: #ffffff;
+  --color-sunken: #f5f5f6;
+  --color-ink: #0c0c0d;
+  --color-ink-2: #3a3a3f;
+  --color-muted: #8b8b92;
+  --color-faint: #b9b9bf;
+  --color-line: #e7e7ea;
+  --color-line-2: #dcdce0;
+  --color-accent: #d97757;
+  --color-accent-strong: #c4613f;
+  --color-accent-soft: #fbefea;
+  --color-accent-softer: #fdf6f3;
+  --color-ok: #2f9e6b;
+  --color-ok-soft: #e8f5ee;
+  --color-warn: #c98a1b;
+  --color-warn-soft: #fbf3e2;
+  --color-bad: #d64545;
+  --color-bad-soft: #fcecec;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --radius-card: 18px;
+  --shadow-card: 0 1px 2px rgba(16, 16, 20, 0.04), 0 8px 24px -12px rgba(16, 16, 20, 0.12);
+  --shadow-float: 0 2px 6px rgba(16, 16, 20, 0.05), 0 24px 48px -20px rgba(16, 16, 20, 0.22);
+
+  --animate-flow: flow 2.6s linear infinite;
+  --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
+  --animate-rise: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-spin-slow: spin 18s linear infinite;
+
+  @keyframes flow {
+    to { stroke-dashoffset: -440; }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.8); }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+html, body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
 }
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv11";
+}
+::selection { background: var(--color-accent-soft); color: var(--color-ink); }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Headline type as in the reference: tight, heavy, two-tone. */
+.display {
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+}
+
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.scroll-thin { scrollbar-width: thin; scrollbar-color: var(--color-line-2) transparent; }
+
+/* Markdown output */
+.prose-ai { font-size: 14px; line-height: 1.65; color: var(--color-ink-2); }
+.prose-ai h1, .prose-ai h2, .prose-ai h3 { color: var(--color-ink); font-weight: 650; letter-spacing: -0.02em; margin: 1.3em 0 0.5em; }
+.prose-ai h1 { font-size: 20px; } .prose-ai h2 { font-size: 17px; } .prose-ai h3 { font-size: 15px; }
+.prose-ai p { margin: 0.6em 0; }
+.prose-ai ul, .prose-ai ol { padding-left: 1.3em; margin: 0.5em 0; }
+.prose-ai ul { list-style: disc; } .prose-ai ol { list-style: decimal; }
+.prose-ai li { margin: 0.2em 0; }
+.prose-ai a { color: var(--color-accent-strong); text-decoration: underline; text-underline-offset: 2px; }
+.prose-ai code { font-family: var(--font-mono); font-size: 12.5px; background: var(--color-sunken); padding: 1px 5px; border-radius: 5px; }
+.prose-ai pre { background: var(--color-sunken); padding: 12px 14px; border-radius: 12px; overflow-x: auto; font-size: 12.5px; }
+.prose-ai pre code { background: none; padding: 0; }
+.prose-ai table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 0.8em 0; display: block; overflow-x: auto; }
+.prose-ai th, .prose-ai td { border-bottom: 1px solid var(--color-line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.prose-ai th { color: var(--color-muted); font-weight: 500; }
+.prose-ai blockquote { border-left: 2px solid var(--color-accent); padding-left: 12px; color: var(--color-muted); }
+.prose-ai strong { color: var(--color-ink); font-weight: 600; }
+
+/* React Flow theming */
+.react-flow__attribution { display: none; }
+.react-flow__edge-path { stroke: var(--color-ink); stroke-width: 1.4; }
+.react-flow__edge.selected .react-flow__edge-path { stroke: var(--color-accent); }
+.react-flow__handle { width: 10px; height: 10px; background: #fff; border: 1.5px solid var(--color-ink); }
+.react-flow__controls { box-shadow: var(--shadow-card); border-radius: 12px; overflow: hidden; }
+.react-flow__controls-button { border-bottom: 1px solid var(--color-line); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+/* Always-emitted keyframes (also used from inline styles). */
+@keyframes flow { to { stroke-dashoffset: -440; } }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.8); } }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
