@@ -1,3 +1,4 @@
+import { appUrl } from "@/lib/app-url";
 import { db, schema } from "@/db";
 
 /** Records a real execution event for the live activity feed. */
@@ -43,7 +44,7 @@ export async function notify(kind: string, title: string, body?: string, href?: 
   // Push to external channels when configured (best effort, never throws).
   try {
     const { sendSlack } = await import("@/server/integrations/providers");
-    await sendSlack(`*${title}*${body ? `\n${body}` : ""}${href ? `\n${process.env.APP_URL ?? ""}${href}` : ""}`, { silentIfMissing: true });
+    await sendSlack(`*${title}*${body ? `\n${body}` : ""}${href ? `\n${appUrl()}${href}` : ""}`, { silentIfMissing: true });
   } catch {
     /* ignore */
   }

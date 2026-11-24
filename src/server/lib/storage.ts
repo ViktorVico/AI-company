@@ -1,23 +1,37 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import crypto from "node:crypto";
+import { eq } from "drizzle-orm";
+import { db, schema } from "@/db";
 
-export const STORAGE_DIR = path.resolve(process.env.STORAGE_DIR || "storage");
+export const MEDIA_TYPES: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  mp3: "audio/mpeg",
+  wav: "audio/wav",
+  mp4: "video/mp4",
+};
 
-/** Stores a generated/uploaded file and returns its public path (/media/<random>.<ext>). */
+/** Stores a generated file in Postgres and returns its public path (/media/<random>.<ext>). */
 export async function saveFile(buf: Buffer, ext: string): Promise<{ url: string; bytes: number }> {
-  await fs.mkdir(STORAGE_DIR, { recursive: true });
-  const name = `${crypto.randomBytes(16).toString("hex")}.${ext.replace(/[^a-z0-9]/gi, "")}`;
-  await fs.writeFile(path.join(STORAGE_DIR, name), buf);
+  const clean = ext.replace(/[^a-z0-9]/gi, "").toLowerCase();
+  const name = `${crypto.randomBytes(16).toString("hex")}.${clean}`;
+  await db.insert(schema.media).values({ name, contentType: MEDIA_TYPES[clean] ?? "application/octet-stream", data: buf });
   return { url: `/media/${name}`, bytes: buf.length };
 }
 
-export function storedPath(urlOrName: string) {
-  const name = path.basename(urlOrName);
+export function mediaName(urlOrName: string) {
+  const name = urlOrName.split("/").pop() ?? "";
   if (!/^[a-f0-9]{32}\.[a-z0-9]+$/i.test(name)) throw new Error("Invalid media name");
-  return path.join(STORAGE_DIR, name);
+  return name;
 }
 
-export async function readStoredFile(url: string) {
-  return fs.readFile(storedPath(url));
+export async function readMedia(urlOrName: string) {
+  return db.query.media.findFirst({ where: eq(schema.media.name, mediaName(urlOrName)) });
+}
+
+export async function readStoredFile(url: string): Promise<Buffer> {
+  const m = await readMedia(url);
+  if (!m) throw new Error(`Media ${url} not found`);
+  return m.data;
 }

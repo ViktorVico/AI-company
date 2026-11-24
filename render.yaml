@@ -1,0 +1,56 @@
+# One-click deployment on Render: web app + background worker + PostgreSQL.
+# Render → New → Blueprint → select this repository. You'll be asked for ADMIN_PASSWORD and ANTHROPIC_API_KEY.
+databases:
+  - name: ai-company-db
+    plan: basic-256mb
+    databaseName: ai_company
+    user: ai_company
+
+envVarGroups:
+  - name: ai-company-shared
+    envVars:
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      - key: APP_TIMEZONE
+        value: Europe/Brussels
+      - key: NODE_VERSION
+        value: "22"
+
+services:
+  - type: web
+    name: ai-company-web
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-company-db
+          property: connectionString
+      - fromGroup: ai-company-shared
+
+  - type: worker
+    name: ai-company-worker
+    runtime: node
+    plan: starter
+    buildCommand: npm ci
+    startCommand: npm run start:worker
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-company-db
+          property: connectionString
+      - key: APP_HOST
+        fromService:
+          type: web
+          name: ai-company-web
+          property: host
+      - fromGroup: ai-company-shared

@@ -1,3 +1,4 @@
+import { appUrl } from "@/lib/app-url";
 import { db, schema } from "@/db";
 import { and, desc, eq, gte, inArray, lt, lte, sql } from "drizzle-orm";
 import { getSetting, appTimezone } from "@/server/lib/settings";
@@ -191,7 +192,7 @@ export async function generateBriefing(opts: { deliver?: boolean } = {}) {
       const { creds } = await getCredentials("resend");
       if (creds.briefingTo) {
         try {
-          await sendEmail({ to: creds.briefingTo, subject: `Morning briefing — ${data.forDate}`, text: `${text}\n\n${process.env.APP_URL ?? ""}/briefing` });
+          await sendEmail({ to: creds.briefingTo, subject: `Morning briefing — ${data.forDate}`, text: `${text}\n\n${appUrl()}/briefing` });
           delivered.push("email");
         } catch (e) {
           console.error("briefing email failed", (e as Error).message);

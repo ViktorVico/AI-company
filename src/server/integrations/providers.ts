@@ -1,3 +1,4 @@
+import { appUrl } from "@/lib/app-url";
 /**
  * Official-API clients for every integration. Every function either performs the
  * real call or throws — nothing here ever fakes a success.
@@ -151,7 +152,7 @@ export type PublishResult = { externalId: string; url: string | null };
 
 function absoluteUrl(u: string) {
   if (/^https?:\/\//.test(u)) return u;
-  const base = process.env.APP_URL;
+  const base = appUrl();
   if (!base) throw new Error("APP_URL must be set to a public URL so platforms can fetch media.");
   return new URL(u, base).toString();
 }

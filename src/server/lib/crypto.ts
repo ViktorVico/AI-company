@@ -1,11 +1,11 @@
 import crypto from "node:crypto";
 
 function key(): Buffer {
-  const hex = process.env.ENCRYPTION_KEY;
-  if (!hex || hex.length !== 64) {
-    throw new Error("ENCRYPTION_KEY must be set to 64 hex characters (32 bytes) to store credentials.");
-  }
-  return Buffer.from(hex, "hex");
+  const k = process.env.ENCRYPTION_KEY ?? "";
+  // 64 hex chars are used as-is; any other secret of 32+ chars (e.g. a generated base64 value) is hashed to 32 bytes.
+  if (/^[0-9a-f]{64}$/i.test(k)) return Buffer.from(k, "hex");
+  if (k.length >= 32) return crypto.createHash("sha256").update(k).digest();
+  throw new Error("ENCRYPTION_KEY must be set (64 hex chars, or any random secret of 32+ characters) to store credentials.");
 }
 
 /** AES-256-GCM. Output: base64(iv | tag | ciphertext). */

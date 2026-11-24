@@ -9,6 +9,7 @@ import {
   serial,
   index,
   uuid,
+  customType,
 } from "drizzle-orm/pg-core";
 
 const ts = (name: string) => timestamp(name, { withTimezone: true });
@@ -385,3 +386,15 @@ export type WorkflowRun = typeof workflowRuns.$inferSelect;
 export type ContentItem = typeof contentItems.$inferSelect;
 export type Lead = typeof leads.$inferSelect;
 export type Event = typeof events.$inferSelect;
+
+/* ───────────────────────── Media (generated images / audio) ───────────────────────── */
+
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({ dataType: () => "bytea" });
+
+/** Stored in Postgres so the web app and the worker (separate servers in production) share media. */
+export const media = pgTable("media", {
+  name: text("name").primaryKey(), // <32 hex>.<ext>
+  contentType: text("content_type").notNull(),
+  data: bytea("data").notNull(),
+  createdAt: now("created_at"),
+});

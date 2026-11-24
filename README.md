@@ -40,6 +40,18 @@ Then, in the app:
 4. **Workflows** → the five default workflows are installed **paused**; enable the ones you want.
 5. **Command center** → give the company an objective. The CEO Agent plans it and delegates.
 
+## Deploy online (Render, one click)
+
+`render.yaml` describes the whole stack: web app, background worker and PostgreSQL.
+
+1. Sign in at https://dashboard.render.com with GitHub and allow Render to access this repository.
+2. **New → Blueprint** → select this repository → Render reads `render.yaml`.
+3. Fill in the two prompted values: `ADMIN_PASSWORD` (your login) and `ANTHROPIC_API_KEY`. `SESSION_SECRET` and `ENCRYPTION_KEY` are generated for you.
+4. **Apply**. On first start the worker migrates the database and installs the 36 agents and default workflows.
+5. Open the `ai-company-web` URL (`https://ai-company-web-….onrender.com`) and sign in.
+
+Cost on Render: web (starter) + worker (starter) + Postgres (basic-256mb) ≈ $20/month, plus your Claude API usage (capped by the monthly budget in Settings).
+
 ## What's inside
 
 ### The 36 agents (`src/server/agents/catalog.ts`)
@@ -102,6 +114,7 @@ Each card on the Integrations page shows connection status, permissions, credent
 - **Video**: Video Editor produces edit decision lists; it does not render video. Attach a finished video URL to a content item (content page → Assets) before TikTok/Reels/YouTube publishing.
 - **Engagement metrics** are fetched for X, Instagram and YouTube; TikTok, LinkedIn and newsletter metrics are not read back.
 - **Single owner**: one login, no multi-user roles yet.
+- **Media** (generated images/audio) is stored in PostgreSQL so the web app and worker can run on separate servers.
 
 ## Scripts
 
@@ -113,7 +126,7 @@ Each card on the Integrations page shows connection status, permissions, credent
 | `npm run db:seed` | Install agents & default workflows (idempotent) |
 | `npm run typecheck` / `npm run lint` | Checks |
 
-Configurable: `WORKER_CONCURRENCY` (default 4 parallel agent tasks), `STORAGE_DIR` (generated media, default `./storage`), `AI_COMPANY_ANTHROPIC_BASE_URL` (gateway/proxy).
+Configurable: `WORKER_CONCURRENCY` (default 4 parallel agent tasks), `AI_COMPANY_ANTHROPIC_BASE_URL` (gateway/proxy).
 
 ## Project map
 
